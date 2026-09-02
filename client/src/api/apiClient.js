@@ -8,15 +8,22 @@ import {
   normalizeStats,
 } from './normalize';
 
-/**
- * Base Axios instance configured for the frontend
- */
+const API_BASE_URL = 'https://fraudlens-d30p.onrender.com';
+
 export const apiClient = axios.create({
-  baseURL: '/api',
-  withCredentials: true,
+  baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
+});
+
+// Attach JWT token to every outgoing request
+apiClient.interceptors.request.use((config) => {
+  const token = localStorage.getItem('fraudlens_token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
 });
 
 apiClient.interceptors.response.use(
@@ -28,12 +35,14 @@ apiClient.interceptors.response.use(
       data: error.response?.data,
       message: error.message,
     });
-    
-    // Auto-logout if 401 Unauthorized
+
+    // Auto-logout if token is invalid/expired
     if (error.response?.status === 401 && window.location.pathname !== '/login') {
+      localStorage.removeItem('fraudlens_token');
+      localStorage.removeItem('fraudlens_user');
       window.location.href = '/login';
     }
-    
+
     return Promise.reject(error);
   }
 );
@@ -43,39 +52,39 @@ apiClient.interceptors.response.use(
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const fetchStats = async () => {
-  const { data } = await apiClient.get('/stats');
+  const { data } = await apiClient.get('/api/stats');
   return normalizeStats(data);
 };
 
-export const fetchAnalytics = async (userId = 'anonymous') => {
-  const { data } = await apiClient.get('/analytics', { params: { userId } });
+export const fetchAnalytics = async () => {
+  const { data } = await apiClient.get('/api/analytics');
   return normalizeAnalytics(data);
 };
 
-export const fetchModelStats = async (userId = 'anonymous') => {
-  const { data } = await apiClient.get('/model-stats', { params: { userId } });
+export const fetchModelStats = async () => {
+  const { data } = await apiClient.get('/api/model-stats');
   return normalizeModelStats(data);
 };
 
 export const fetchPaginatedTransactions = async ({ page = 1, limit = 100, filter = 'all' } = {}) => {
-  const { data } = await apiClient.get('/transactions-page', {
+  const { data } = await apiClient.get('/api/transactions-page', {
     params: { page, limit, filter },
   });
   return normalizePaginatedTransactions(data);
 };
 
 export const fetchCases = async () => {
-  const { data } = await apiClient.get('/cases');
+  const { data } = await apiClient.get('/api/cases');
   return normalizeCases(data);
 };
 
 export const submitCaseReview = async (caseId, reviewPayload) => {
-  const { data } = await apiClient.post(`/cases/${caseId}/review`, reviewPayload);
+  const { data } = await apiClient.post(`/api/cases/${caseId}/review`, reviewPayload);
   return data;
 };
 
 export const fetchShapExplanation = async (features) => {
-  const { data } = await apiClient.post('/shap', features);
+  const { data } = await apiClient.post('/api/shap', features);
   return normalizePrediction(data);
 };
 
@@ -84,11 +93,15 @@ export const fetchRecentHistory = async () => {
   return normalizeCases(data);
 };
 
-export const uploadDatasetFile = async (file, userId = 'anonymous') => {
+export const submitPrediction = async (transactionData) => {
+  const { data } = await apiClient.post('/predict', transactionData);
+  return normalizePrediction(data);
+};
+
+export const uploadDatasetFile = async (file) => {
   const formData = new FormData();
   formData.append('file', file);
-  formData.append('userId', userId);
-  const { data } = await apiClient.post('/upload-dataset', formData, {
+  const { data } = await apiClient.post('/api/upload-dataset', formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
   });
   return data;

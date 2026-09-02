@@ -8,35 +8,41 @@ export const AuthProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user has an active session
-    const checkAuth = async () => {
+    // On load, check if a token + user already exist in localStorage
+    const storedToken = localStorage.getItem('fraudlens_token');
+    const storedUser = localStorage.getItem('fraudlens_user');
+
+    if (storedToken && storedUser) {
       try {
-        const { data } = await apiClient.get('/auth/me');
-        setUser(data.user);
+        setUser(JSON.parse(storedUser));
       } catch (err) {
-        setUser(null);
-      } finally {
-        setIsLoading(false);
+        localStorage.removeItem('fraudlens_token');
+        localStorage.removeItem('fraudlens_user');
       }
-    };
-    
-    checkAuth();
+    }
+    setIsLoading(false);
   }, []);
 
   const login = async (email, password) => {
-    const { data } = await apiClient.post('/login', { email, password });
+    const { data } = await apiClient.post('/auth/login', { email, password });
+    localStorage.setItem('fraudlens_token', data.token);
+    localStorage.setItem('fraudlens_user', JSON.stringify(data.user));
     setUser(data.user);
     return data;
   };
 
   const signup = async (name, email, password) => {
-    const { data } = await apiClient.post('/signup', { name, email, password });
+    const { data } = await apiClient.post('/auth/register', { name, email, password });
+    localStorage.setItem('fraudlens_token', data.token);
+    localStorage.setItem('fraudlens_user', JSON.stringify(data.user));
     setUser(data.user);
     return data;
   };
 
-  const logout = async () => {
-    await apiClient.post('/logout');
+  const logout = () => {
+    // JWT is stateless — no server call needed, just clear local storage
+    localStorage.removeItem('fraudlens_token');
+    localStorage.removeItem('fraudlens_user');
     setUser(null);
   };
 
