@@ -4,8 +4,8 @@ pymongo==4.4.0
 python-dotenv==1.0.0
 xgboost==2.0.0
 scikit-learn==1.6.1
-numpy>=1.26,<3
 pandas==2.0.0
+numpy==1.26.4
 shap==0.42.0
 joblib==1.3.0
 pyjwt==2.13.0
