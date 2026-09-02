@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeuralGuard AI | Obsidian Purple</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #0B1120;
+            background-color: #0B1120;
+            color: #f8fafc;
+        }
+
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .neon-blue-glow {
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.1);
+        }
+
+        ::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen p-6">
+    <div class="flex gap-6 h-[calc(100vh-3rem)] max-w-[1600px] mx-auto">
+
+        <!-- Sidebar -->
+        <aside class="w-72 glass-panel rounded-[2.5rem] flex flex-col p-8 neon-blue-glow">
+            <div class="flex items-center gap-3 mb-14">
+                <div
+                    class="w-10 h-10 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-xl shadow-[0_0_15px_rgba(59,130,246,0.5)]">
+                </div>
+                <h1 class="text-lg font-bold tracking-tight">NEURALGUARD AI</h1>
+            </div>
+            <nav class="flex-1">
+                <ul class="space-y-2">
+                    <li onclick="location.href='/dashboard'"
+                        class="flex items-center gap-3 bg-white/5 text-blue-400 p-4 rounded-2xl border border-white/5 cursor-pointer transition hover:bg-white/10">
+                        <span class="w-2 h-2 bg-blue-500 rounded-full shadow-[0_0_8px_#3b82f6]"></span> Dashboard
+                    </li>
+                    <li onclick="location.href='/alerts'"
+                        class="flex items-center gap-3 text-slate-400 hover:text-slate-50 p-4 rounded-2xl transition cursor-pointer hover:bg-white/5">
+                        Alerts
+                    </li>
+                    <li onclick="location.href='/transactions'"
+                        class="flex items-center gap-3 text-slate-400 hover:text-slate-50 p-4 rounded-2xl transition cursor-pointer hover:bg-white/5">
+                        Transactions
+                    </li>
+                    <li onclick="location.href='/analytics'"
+                        class="flex items-center gap-3 text-slate-400 hover:text-slate-50 p-4 rounded-2xl transition cursor-pointer hover:bg-white/5">
+                        Analytics
+                    </li>
+                    <li onclick="location.href='/model-stats'"
+                        class="flex items-center gap-3 text-slate-400 hover:text-slate-50 p-4 rounded-2xl transition cursor-pointer hover:bg-white/5">
+                        Model Performance
+                    </li>
+                    <li onclick="location.href='/shap'"
+                        class="flex items-center gap-3 text-slate-400 hover:text-slate-50 p-4 rounded-2xl transition cursor-pointer hover:bg-white/5">
+                        SHAP Explainer
+                    </li>
+                    <li onclick="location.href='/cases'"
+                        class="flex items-center gap-3 text-slate-400 hover:text-slate-50 p-4 rounded-2xl transition cursor-pointer hover:bg-white/5">
+                        Case Review
+                    </li>
+                    <li onclick="location.href='/upload'"
+                        class="flex items-center gap-3 text-slate-400 hover:text-slate-50 p-4 rounded-2xl transition cursor-pointer hover:bg-white/5">
+                        Upload Data
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="mt-auto pt-6 border-t border-white/5">
+                <div class="bg-cyan-500/10 p-4 rounded-2xl border border-cyan-500/20">
+                    <p class="text-[10px] uppercase text-cyan-400 font-bold mb-2 tracking-widest">Model Health</p>
+                    <div class="w-full bg-white/5 h-1 rounded-full overflow-hidden">
+                        <div class="bg-cyan-500 h-full w-[92%]"></div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main -->
+        <main class="flex-1 flex flex-col gap-6 overflow-y-auto pr-2">
+            <header class="flex justify-between items-center mb-2">
+                <div>
+                    <h2 class="text-4xl font-bold tracking-tight">LLM Fraud Detection</h2>
+                    <p class="text-slate-400 text-sm mt-1 flex items-center gap-2">
+                        <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+                        Monitoring Live Transactions
+                    </p>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="flex bg-white/5 p-1 rounded-full border border-white/5">
+                        <button
+                            class="p-2 px-4 text-[10px] font-bold bg-white/10 text-white rounded-full shadow-lg">Live</button>
+                        <button class="p-2 px-4 text-[10px] font-bold text-slate-400">Static</button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- KPI Cards -->
+            <div class="grid grid-cols-3 gap-6">
+                <div class="glass-panel p-6 rounded-[2rem]">
+                    <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-4">Total Transactions
+                    </p>
+                    <h3 id="total-transactions" class="text-3xl font-bold">Loading...</h3>
+                </div>
+                <div class="glass-panel p-6 rounded-[2rem]">
+                    <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-4">Frauds Detected</p>
+                    <h3 id="frauds-detected" class="text-3xl font-bold text-red-500">0</h3>
+                </div>
+                <div class="glass-panel p-6 rounded-[2rem]">
+                    <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-4">Global Risk Score</p>
+                    <h3 id="risk-score" class="text-3xl font-bold">0%</h3>
+                    <div class="w-full bg-white/5 h-1.5 rounded-full mt-5">
+                        <div id="risk-bar"
+                            class="bg-gradient-to-r from-blue-500 to-cyan-500 h-full w-[0%] rounded-full shadow-[0_0_10px_#3b82f6]">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chart -->
+            <div class="glass-panel p-8 rounded-[2.5rem] flex-1 relative min-h-[400px]">
+                <h4 class="text-xl font-bold mb-8">LLM Fraud Detection Trend</h4>
+                <div class="absolute bottom-10 left-10 right-10 top-24">
+                    <canvas id="fraudChart"></canvas>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/js/dashboard.js"></script>
+</body>
+
+</html>

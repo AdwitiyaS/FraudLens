@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Case Review | NeuralGuard AI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0B1120;
+            color: #f8fafc;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px 40px;
+            border-bottom: 1px solid #1e293b;
+        }
+
+        .topbar h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .topbar h1 span {
+            color: #06b6d4;
+        }
+
+        .btn {
+            background: #3b82f6;
+            color: #fff;
+            padding: 10px 22px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: .9rem;
+            border: none;
+            cursor: pointer;
+        }
+
+        .subtitle {
+            padding: 16px 40px 0;
+            font-size: .85rem;
+            color: #64748b;
+        }
+
+        .table-wrap {
+            padding: 24px 40px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #1e293b;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #1e293b;
+        }
+
+        th {
+            text-align: left;
+            font-size: .72rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            padding: 14px 16px;
+            background: #0f172a;
+            border-bottom: 1px solid #1e293b;
+        }
+
+        td {
+            padding: 14px 16px;
+            font-size: .85rem;
+            border-bottom: 1px solid #0f172a;
+            vertical-align: middle;
+        }
+
+        tr:hover td {
+            background: #1e293b33;
+        }
+
+        .badge-fraud {
+            background: #7f1d1d;
+            color: #fca5a5;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: .72rem;
+            font-weight: 600;
+        }
+
+        .badge-fp {
+            background: #1e3a5f;
+            color: #93c5fd;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: .72rem;
+            font-weight: 600;
+        }
+
+        .badge-review {
+            background: #78350f;
+            color: #fcd34d;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: .72rem;
+            font-weight: 600;
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 8px;
+        }
+
+        .act {
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: .75rem;
+            cursor: pointer;
+            border: none;
+            font-weight: 600;
+            transition: .15s;
+        }
+
+        .act-fraud {
+            background: #7f1d1d;
+            color: #fca5a5;
+        }
+
+        .act-fraud:hover {
+            background: #991b1b;
+        }
+
+        .act-fp {
+            background: #1e3a5f;
+            color: #93c5fd;
+        }
+
+        .act-fp:hover {
+            background: #1e40af;
+        }
+
+        .act-done {
+            background: #14532d;
+            color: #86efac;
+            cursor: default;
+        }
+
+        .notes-input {
+            background: #0f172a;
+            border: 1px solid #334155;
+            color: #f8fafc;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: .78rem;
+            width: 160px;
+        }
+
+        .reviewed-tag {
+            color: #10b981;
+            font-size: .78rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="topbar">
+        <h1>Neural<span>Guard</span> — Case Review</h1>
+        <a href="/dashboard" class="btn">← Dashboard</a>
+    </div>
+    <p class="subtitle">Flag fraud detections as True Fraud or False Positive. Your labels feed back into model
+        improvement.</p>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Transaction ID</th>
+                    <th>Amount</th>
+                    <th>V14 Feature</th>
+                    <th>Time</th>
+                    <th>Status</th>
+                    <th>Notes</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="case-table">
+                <% cases.forEach((c, i)=> { %>
+                    <tr id="row-<%= c._id %>">
+                        <td>
+                            <%= i+1 %>
+                        </td>
+                        <td style="font-family:monospace;font-size:.75rem;color:#64748b">
+                            <%= c._id %>
+                        </td>
+                        <td>$<%= c.Amount ? c.Amount.toFixed(2) : '—' %>
+                        </td>
+                        <td>
+                            <%= c.V14 ? c.V14.toFixed(4) : '—' %>
+                        </td>
+                        <td>
+                            <%= c.Time %>
+                        </td>
+                        <td>
+                            <% if(c.reviewed) { %>
+                                <span class="<%= c.review_label === 'TRUE_FRAUD' ? 'badge-fraud' : 'badge-fp' %>">
+                                    <%= c.review_label==='TRUE_FRAUD' ? 'True Fraud' : 'False Positive' %>
+                                </span>
+                                <% } else { %>
+                                    <span class="badge-review">Pending Review</span>
+                                    <% } %>
+                        </td>
+                        <td>
+                            <% if(c.reviewed) { %>
+                                <span style="color:#475569;font-size:.8rem">
+                                    <%= c.notes || '—' %>
+                                </span>
+                                <% } else { %>
+                                    <input class="notes-input" id="notes-<%= c._id %>" placeholder="Add note..." />
+                                    <% } %>
+                        </td>
+                        <td>
+                            <% if(c.reviewed) { %>
+                                <span class="reviewed-tag">✓ Reviewed</span>
+                                <% } else { %>
+                                    <div class="action-btns">
+                                        <button class="act act-fraud"
+                                            onclick="reviewCase('<%= c._id %>', 'TRUE_FRAUD')">True Fraud</button>
+                                        <button class="act act-fp"
+                                            onclick="reviewCase('<%= c._id %>', 'FALSE_POSITIVE')">False
+                                            Positive</button>
+                                    </div>
+                                    <% } %>
+                        </td>
+                    </tr>
+                    <% }) %>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        async function reviewCase(id, label) {
+            const notes = document.getElementById('notes-' + id)?.value || '';
+            try {
+                await fetch('/api/case-review/' + id, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ label, notes })
+                });
+                // Update row without reload
+                const row = document.getElementById('row-' + id);
+                const cells = row.querySelectorAll('td');
+                cells[5].innerHTML = label === 'TRUE_FRAUD'
+                    ? '<span class="badge-fraud">True Fraud</span>'
+                    : '<span class="badge-fp">False Positive</span>';
+                cells[6].innerHTML = `<span style="color:#475569;font-size:.8rem">${notes || '—'}</span>`;
+                cells[7].innerHTML = '<span class="reviewed-tag">✓ Reviewed</span>';
+            } catch (e) {
+                alert('Review failed. Is Flask running on port 5001?');
+            }
+        }
+    </script>
+</body>
+
+</html>

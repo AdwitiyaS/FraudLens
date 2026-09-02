@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Model Performance | NeuralGuard AI</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0B1120;
+            color: #f8fafc;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px 40px;
+            border-bottom: 1px solid #1e293b;
+        }
+
+        .topbar h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .topbar h1 span {
+            color: #06b6d4;
+        }
+
+        .btn {
+            background: #3b82f6;
+            color: #fff;
+            padding: 10px 22px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: .9rem;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            padding: 32px 40px;
+        }
+
+        .card {
+            background: #1e293b;
+            border: 1px solid #1e293b;
+            border-radius: 12px;
+            padding: 28px;
+        }
+
+        .card h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #94a3b8;
+            margin-bottom: 20px;
+        }
+
+        .card.wide {
+            grid-column: 1/-1;
+        }
+
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #1e293b44;
+        }
+
+        .metric-row:last-child {
+            border: none;
+        }
+
+        .metric-label {
+            font-size: .85rem;
+            color: #94a3b8;
+        }
+
+        .metric-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #06b6d4;
+        }
+
+        .bar-wrap {
+            flex: 1;
+            margin: 0 16px;
+            background: #1e293b;
+            border-radius: 4px;
+            height: 6px;
+        }
+
+        .bar-fill {
+            height: 6px;
+            border-radius: 4px;
+            background: linear-gradient(90deg, #3b82f6, #06b6d4);
+        }
+
+        .cm-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .cm-cell {
+            background: #1e293b;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .cm-cell .num {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .cm-cell .lbl {
+            font-size: .75rem;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        .cm-cell.tp .num {
+            color: #10b981;
+        }
+
+        .cm-cell.fp .num {
+            color: #ef4444;
+        }
+
+        .cm-cell.fn .num {
+            color: #f59e0b;
+        }
+
+        .cm-cell.tn .num {
+            color: #3b82f6;
+        }
+
+        .feat-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 0;
+            border-bottom: 1px solid #1e293b22;
+        }
+
+        .feat-name {
+            width: 80px;
+            font-size: .8rem;
+            color: #94a3b8;
+        }
+
+        .feat-bar-wrap {
+            flex: 1;
+            background: #1e293b;
+            border-radius: 4px;
+            height: 8px;
+        }
+
+        .feat-bar {
+            height: 8px;
+            border-radius: 4px;
+            background: #3b82f6;
+        }
+
+        .feat-val {
+            width: 60px;
+            text-align: right;
+            font-size: .8rem;
+            color: #64748b;
+        }
+
+        .model-badge {
+            display: inline-block;
+            background: #0B1120;
+            color: #a5b4fc;
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: .8rem;
+            margin-bottom: 16px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="topbar">
+        <h1>Neural<span>Guard</span> — Model Performance</h1>
+        <a href="/dashboard" class="btn">← Dashboard</a>
+    </div>
+
+    <div class="layout">
+
+        <!-- Key Metrics -->
+        <div class="card">
+            <h3>Model Metrics</h3>
+            <span class="model-badge">
+                <%= stats.modelName || 'Random Forest + Isolation Forest' %>
+            </span>
+            <% const m=stats.metrics || {}; %>
+                <% const metricsList=[ { label:'ROC-AUC Score', val: m.roc_auc, pct: m.roc_auc }, { label:'Accuracy',
+                    val: m.accuracy, pct: m.accuracy }, { label:'Precision', val: m.precision, pct: m.precision }, {
+                    label:'Recall', val: m.recall, pct: m.recall }, { label:'F1 Score', val: m.f1, pct: m.f1 }, {
+                    label:'CV Mean AUC', val: m.cv_mean, pct: m.cv_mean } ]; %>
+                    <% metricsList.forEach(item=> { %>
+                        <div class="metric-row">
+                            <span class="metric-label">
+                                <%= item.label %>
+                            </span>
+                            <div class="bar-wrap">
+                                <div class="bar-fill" style="width:<%= item.pct ? (item.pct*100).toFixed(1) : 0 %>%">
+                                </div>
+                            </div>
+                            <span class="metric-value">
+                                <%= item.val ? (item.val*100).toFixed(2)+'%' : '—' %>
+                            </span>
+                        </div>
+                        <% }) %>
+        </div>
+
+        <!-- Confusion Matrix -->
+        <div class="card">
+            <h3>Confusion Matrix</h3>
+            <% const cm=(stats.metrics && stats.metrics.confusion_matrix) || [[0,0],[0,0]]; %>
+                <div class="cm-grid">
+                    <div class="cm-cell tn">
+                        <div class="num">
+                            <%= cm[0][0].toLocaleString() %>
+                        </div>
+                        <div class="lbl">True Negative</div>
+                        <div class="lbl">(Correct Legit)</div>
+                    </div>
+                    <div class="cm-cell fp">
+                        <div class="num">
+                            <%= cm[0][1].toLocaleString() %>
+                        </div>
+                        <div class="lbl">False Positive</div>
+                        <div class="lbl">(Wrong Fraud Flag)</div>
+                    </div>
+                    <div class="cm-cell fn">
+                        <div class="num">
+                            <%= cm[1][0].toLocaleString() %>
+                        </div>
+                        <div class="lbl">False Negative</div>
+                        <div class="lbl">(Missed Fraud)</div>
+                    </div>
+                    <div class="cm-cell tp">
+                        <div class="num">
+                            <%= cm[1][1].toLocaleString() %>
+                        </div>
+                        <div class="lbl">True Positive</div>
+                        <div class="lbl">(Caught Fraud)</div>
+                    </div>
+                </div>
+        </div>
+
+        <!-- Feature Importance -->
+        <div class="card wide">
+            <h3>Top 10 Feature Importances (Random Forest)</h3>
+            <% const feats=stats.featureImportance || []; %>
+                <% const maxImp=feats.length ? feats[0].importance : 1; %>
+                    <% feats.forEach(f=> { %>
+                        <div class="feat-row">
+                            <span class="feat-name">
+                                <%= f.feature %>
+                            </span>
+                            <div class="feat-bar-wrap">
+                                <div class="feat-bar" style="width:<%= ((f.importance/maxImp)*100).toFixed(1) %>%">
+                                </div>
+                            </div>
+                            <span class="feat-val">
+                                <%= (f.importance*100).toFixed(2) %>%
+                            </span>
+                        </div>
+                        <% }) %>
+                            <p style="margin-top:20px;font-size:.8rem;color:#475569;">
+                                Trained on: <%= stats.trainedOn || 'Kaggle Credit Card Fraud Dataset' %> &nbsp;|&nbsp;
+                                    Threshold: <%= stats.metrics && stats.metrics.threshold ? stats.metrics.threshold
+                                        : '0.35' %> &nbsp;|&nbsp;
+                                        CV Std: ± <%= stats.metrics && stats.metrics.cv_std ?
+                                            (stats.metrics.cv_std*100).toFixed(2)+'%' : '—' %>
+                            </p>
+        </div>
+
+    </div>
+</body>
+
+</html>

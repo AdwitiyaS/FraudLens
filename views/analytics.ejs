@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Analytics | NeuralGuard AI</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0B1120;
+            color: #f8fafc;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            min-height: 100vh;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px 40px;
+            border-bottom: 1px solid #1e293b;
+        }
+
+        .topbar h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .topbar h1 span {
+            color: #06b6d4;
+        }
+
+        .btn {
+            background: #3b82f6;
+            color: #fff;
+            padding: 10px 22px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: .9rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            padding: 32px 40px 0;
+        }
+
+        .kpi {
+            background: #1e293b;
+            border: 1px solid #1e293b;
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .kpi .label {
+            font-size: .75rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            margin-bottom: 8px;
+        }
+
+        .kpi .value {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .kpi .value.red {
+            color: #ef4444;
+        }
+
+        .kpi .value.green {
+            color: #10b981;
+        }
+
+        .kpi .value.amber {
+            color: #f59e0b;
+        }
+
+        .kpi .value.purple {
+            color: #06b6d4;
+        }
+
+        .charts {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            padding: 24px 40px;
+        }
+
+        .chart-card {
+            background: #1e293b;
+            border: 1px solid #1e293b;
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .chart-card h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #94a3b8;
+        }
+
+        .chart-wide {
+            grid-column: 1/-1;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 8px;
+        }
+
+        th {
+            text-align: left;
+            font-size: .7rem;
+            color: #64748b;
+            text-transform: uppercase;
+            padding: 8px 12px;
+            border-bottom: 1px solid #1e293b;
+        }
+
+        td {
+            padding: 10px 12px;
+            font-size: .85rem;
+            border-bottom: 1px solid #0f172a;
+        }
+
+        tr:hover td {
+            background: #1e293b44;
+        }
+
+        .badge {
+            padding: 3px 10px;
+            border-radius: 999px;
+            font-size: .75rem;
+            font-weight: 600;
+            background: #7f1d1d;
+            color: #fca5a5;
+        }
+
+        #loading {
+            text-align: center;
+            padding: 40px;
+            color: #64748b;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="topbar">
+        <h1>Neural<span>Guard</span> — Analytics</h1>
+        <a href="/dashboard" class="btn">← Dashboard</a>
+    </div>
+
+    <div class="grid">
+        <div class="kpi">
+            <div class="label">Total Transactions</div>
+            <div class="value purple" id="kpi-total">Loading...</div>
+        </div>
+        <div class="kpi">
+            <div class="label">Frauds Detected</div>
+            <div class="value red" id="kpi-fraud">—</div>
+        </div>
+        <div class="kpi">
+            <div class="label">Legitimate</div>
+            <div class="value green" id="kpi-legit">—</div>
+        </div>
+        <div class="kpi">
+            <div class="label">Fraud Rate</div>
+            <div class="value amber" id="kpi-rate">—</div>
+        </div>
+    </div>
+
+    <div id="loading">Loading analytics data...</div>
+
+    <div class="charts" id="charts-section" style="display:none">
+        <div class="chart-card">
+            <h3>Fraud vs Legitimate Breakdown</h3>
+            <canvas id="donut" height="220"></canvas>
+        </div>
+        <div class="chart-card">
+            <h3>Transaction Amount Distribution</h3>
+            <canvas id="barChart" height="220"></canvas>
+        </div>
+        <div class="chart-card chart-wide">
+            <h3>Top 10 Highest-Amount Fraud Transactions</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Amount</th>
+                        <th>V14 Feature</th>
+                        <th>Time</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="top-frauds-body"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        var donutChart, barChart;
+
+        async function loadAnalytics() {
+            try {
+                const res = await fetch('/api/analytics');
+                const data = await res.json();
+
+                // KPIs
+                document.getElementById('kpi-total').textContent = data.total ? data.total.toLocaleString() : '—';
+                document.getElementById('kpi-fraud').textContent = data.fraudCount ? data.fraudCount.toLocaleString() : '—';
+                document.getElementById('kpi-legit').textContent = data.legitCount ? data.legitCount.toLocaleString() : '—';
+                document.getElementById('kpi-rate').textContent = data.fraudRate ? data.fraudRate + '%' : '—';
+
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('charts-section').style.display = 'grid';
+
+                // Doughnut
+                donutChart = new Chart(document.getElementById('donut'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Fraud', 'Legitimate'],
+                        datasets: [{
+                            data: [data.fraudCount || 0, data.legitCount || 0],
+                            backgroundColor: ['#ef4444', '#10b981'],
+                            borderWidth: 0, hoverOffset: 8
+                        }]
+                    },
+                    options: {
+                        plugins: { legend: { labels: { color: '#94a3b8' } } },
+                        cutout: '70%'
+                    }
+                });
+
+                // Bar chart
+                var amountDist = data.amountDistribution || [];
+                var labels = amountDist.map(function (b) { return '$' + b._id; });
+                var counts = amountDist.map(function (b) { return b.count; });
+                var frauds = amountDist.map(function (b) { return b.fraudCount; });
+
+                barChart = new Chart(document.getElementById('barChart'), {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            { label: 'Total', data: counts, backgroundColor: '#3b82f688' },
+                            { label: 'Fraud', data: frauds, backgroundColor: '#ef444488' }
+                        ]
+                    },
+                    options: {
+                        plugins: { legend: { labels: { color: '#94a3b8' } } },
+                        scales: {
+                            x: { ticks: { color: '#64748b' }, grid: { color: '#1e293b' } },
+                            y: { ticks: { color: '#64748b' }, grid: { color: '#1e293b' } }
+                        }
+                    }
+                });
+
+                // Top frauds table
+                var tbody = document.getElementById('top-frauds-body');
+                var rows = '';
+                (data.topFrauds || []).forEach(function (tx, i) {
+                    rows += '<tr><td>' + (i + 1) + '</td>' +
+                        '<td>$' + (tx.Amount ? tx.Amount.toFixed(2) : '—') + '</td>' +
+                        '<td>' + (tx.V14 ? tx.V14.toFixed(4) : '—') + '</td>' +
+                        '<td>' + (tx.Time || '—') + '</td>' +
+                        '<td><span class="badge">FRAUD</span></td></tr>';
+                });
+                tbody.innerHTML = rows || '<tr><td colspan="5" style="color:#475569">No data</td></tr>';
+
+            } catch (e) {
+                document.getElementById('loading').textContent = 'Failed to load. Make sure Flask is running on port 5001.';
+                console.error('Analytics error:', e);
+            }
+        }
+
+        loadAnalytics();
+    </script>
+</body>
+
+</html>

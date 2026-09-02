@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>SHAP Explainer | NeuralGuard AI</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0B1120;
+            color: #f8fafc;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px 40px;
+            border-bottom: 1px solid #1e293b;
+        }
+
+        .topbar h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .topbar h1 span {
+            color: #06b6d4;
+        }
+
+        .btn {
+            background: #3b82f6;
+            color: #fff;
+            padding: 10px 22px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: .9rem;
+            cursor: pointer;
+            border: none;
+        }
+
+        .content {
+            padding: 32px 40px;
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 28px;
+        }
+
+        .card {
+            background: #1e293b;
+            border: 1px solid #1e293b;
+            border-radius: 12px;
+            padding: 28px;
+        }
+
+        .card h3 {
+            font-size: 1rem;
+            color: #94a3b8;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: .8rem;
+            color: #64748b;
+            margin-bottom: 6px;
+            margin-top: 14px;
+        }
+
+        input[type=number] {
+            width: 100%;
+            background: #0f172a;
+            border: 1px solid #334155;
+            color: #f8fafc;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: .9rem;
+        }
+
+        input[type=number]:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .submit-btn {
+            width: 100%;
+            margin-top: 20px;
+            padding: 12px;
+            background: #3b82f6;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background .2s;
+        }
+
+        .submit-btn:hover {
+            background: #6d28d9;
+        }
+
+        .verdict {
+            margin-top: 20px;
+            text-align: center;
+            padding: 16px;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .verdict.fraud {
+            background: #7f1d1d;
+            border: 1px solid #ef444466;
+        }
+
+        .verdict.legit {
+            background: #14532d;
+            border: 1px solid #10b98166;
+        }
+
+        .verdict .label {
+            font-size: .8rem;
+            color: #94a3b8;
+        }
+
+        .verdict .val {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        .shap-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 0;
+        }
+
+        .shap-name {
+            width: 80px;
+            font-size: .8rem;
+            color: #94a3b8;
+            text-align: right;
+        }
+
+        .shap-bar-pos {
+            height: 18px;
+            background: #ef4444;
+            border-radius: 0 4px 4px 0;
+            min-width: 2px;
+            transition: width .4s;
+        }
+
+        .shap-bar-neg {
+            height: 18px;
+            background: #3b82f6;
+            border-radius: 4px 0 0 4px;
+            min-width: 2px;
+            transition: width .4s;
+        }
+
+        .shap-val {
+            font-size: .75rem;
+            color: #64748b;
+            min-width: 50px;
+        }
+
+        .axis {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            font-size: .75rem;
+            color: #475569;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+            display: inline-block;
+        }
+
+        #loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+            color: #64748b;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="topbar">
+        <h1>Neural<span>Guard</span> — SHAP Explainer</h1>
+        <a href="/dashboard" class="btn">← Dashboard</a>
+    </div>
+
+    <div class="content">
+
+        <!-- Input form -->
+        <div class="card">
+            <h3>Transaction Input</h3>
+            <p style="font-size:.8rem;color:#475569;margin-bottom:8px;">Enter transaction details to see why the model
+                made its decision.</p>
+
+            <label>Amount ($)</label>
+            <input type="number" id="amount" value="2500" step="0.01" />
+
+            <label>Time (seconds from first tx)</label>
+            <input type="number" id="time" value="50000" />
+
+            <label>V14 (key latent feature)</label>
+            <input type="number" id="v14" value="-10" step="0.01" />
+
+            <button class="submit-btn" onclick="explainTransaction()">Explain This Transaction →</button>
+
+            <div class="verdict" id="verdict">
+                <div class="label">Model Decision</div>
+                <div class="val" id="verdict-label">—</div>
+                <div class="label" style="margin-top:8px">Fraud Probability</div>
+                <div class="val" id="verdict-prob">—</div>
+            </div>
+        </div>
+
+        <!-- SHAP chart -->
+        <div class="card">
+            <h3>SHAP Feature Contributions</h3>
+            <p style="font-size:.8rem;color:#475569;margin-bottom:16px;">
+                Red bars push the prediction toward <strong style="color:#ef4444">FRAUD</strong>.
+                Blue bars push toward <strong style="color:#3b82f6">LEGITIMATE</strong>.
+            </p>
+            <div class="axis">
+                <span class="dot" style="background:#3b82f6"></span> Pushes Legitimate &nbsp;&nbsp;
+                <span class="dot" style="background:#ef4444"></span> Pushes Fraud
+            </div>
+            <div id="loading">Calculating SHAP values...</div>
+            <div id="shap-chart"></div>
+        </div>
+
+    </div>
+
+    <script>
+        async function explainTransaction() {
+            const amount = document.getElementById('amount').value;
+            const time = document.getElementById('time').value;
+            const v14 = document.getElementById('v14').value;
+
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('shap-chart').innerHTML = '';
+            document.getElementById('verdict').style.display = 'none';
+
+            try {
+                const res = await fetch('/api/shap-proxy', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ amount, time, v14 })
+                });
+                const data = await res.json();
+                document.getElementById('loading').style.display = 'none';
+
+                if (data.error) {
+                    document.getElementById('shap-chart').innerHTML =
+                        '<p style="color:#ef4444;padding:20px">' + data.error + '</p>';
+                    return;
+                }
+
+                // Verdict
+                const verdict = document.getElementById('verdict');
+                verdict.style.display = 'block';
+                verdict.className = 'verdict ' + (data.prediction === 'FRAUD' ? 'fraud' : 'legit');
+                document.getElementById('verdict-label').textContent = data.prediction;
+                document.getElementById('verdict-prob').textContent =
+                    (data.fraudProbability * 100).toFixed(1) + '%';
+
+                // SHAP bars
+                const maxAbs = Math.max(...data.shapValues.map(s => Math.abs(s.shap_value)));
+                const maxBarPx = 200;
+                let html = '';
+                data.shapValues.forEach(s => {
+                    const px = Math.round((Math.abs(s.shap_value) / maxAbs) * maxBarPx);
+                    const isPos = s.shap_value >= 0;
+                    html += `<div class="shap-row">
+        <span class="shap-name">${s.feature}</span>
+        ${isPos
+                            ? `<div style="width:${maxBarPx}px;display:flex;justify-content:flex-start">
+               <div class="shap-bar-pos" style="width:${px}px"></div></div>`
+                            : `<div style="width:${maxBarPx}px;display:flex;justify-content:flex-end">
+               <div class="shap-bar-neg" style="width:${px}px"></div></div>`
+                        }
+        <span class="shap-val">${s.shap_value > 0 ? '+' : ''}${s.shap_value.toFixed(4)}</span>
+      </div>`;
+                });
+                document.getElementById('shap-chart').innerHTML = html;
+
+            } catch (e) {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('shap-chart').innerHTML =
+                    '<p style="color:#ef4444;padding:20px">Failed to fetch SHAP values. Is Flask running?</p>';
+            }
+        }
+    </script>
+</body>
+
+</html>

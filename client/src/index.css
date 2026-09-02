@@ -1,0 +1,392 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .glass-panel {
+    background: var(--ng-surface);
+    border: 1px solid var(--ng-border);
+    backdrop-filter: blur(12px);
+    border-radius: 1rem;
+    transition: 0.2s;
+  }
+  .glass-panel:hover {
+    border-color: var(--ng-accent);
+    background: var(--ng-hover-bg);
+  }
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+  color: var(--ng-text);
+  background-color: var(--ng-bg);
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Global Focus Styles for A11y */
+:focus-visible {
+  outline: none;
+  border-color: #06b6d4 !important; /* Cyan 500 */
+  box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.4);
+}
+
+#root {
+  width: 100%;
+}
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Dashboard — NeuralGuard Design System (Disha replica)
+   ═══════════════════════════════════════════════════════════════ */
+
+
+:root {
+  --ng-bg: #08090d;
+  --ng-surface: #0f1117;
+  --ng-card: #14161e;
+  --ng-border: #1e2230;
+  --ng-accent: #00e5ff;
+  --ng-red: #ff3b5c;
+  --ng-green: #00c87a;
+  --ng-amber: #ffb830;
+  --ng-text: #e8eaf2;
+  --ng-muted: #5a6080;
+  --ng-dim: #282d3f;
+  --ng-hover-bg: rgba(255, 255, 255, 0.04);
+}
+
+:root.light-theme {
+  --ng-bg: #f8fafc;
+  --ng-surface: #ffffff;
+  --ng-card: #f1f5f9;
+  --ng-border: #e2e8f0;
+  --ng-accent: #0096b8; /* Darker cyan for contrast on light background */
+  --ng-red: #e11d48;
+  --ng-green: #059669;
+  --ng-amber: #d97706;
+  --ng-text: #0f172a;
+  --ng-muted: #334155;
+  --ng-dim: #cbd5e1;
+  --ng-hover-bg: rgba(0, 0, 0, 0.04);
+}
+
+.font-syne  { font-family: 'Syne', sans-serif; }
+.font-mono2 { font-family: 'JetBrains Mono', monospace; }
+
+/* ── KPI Cards ── */
+.kpi-card {
+  background: var(--ng-card);
+  border: 1px solid var(--ng-border);
+  border-radius: 10px;
+  padding: 16px 18px;
+  position: relative;
+  overflow: hidden;
+  transition: 0.2s;
+}
+.kpi-card:hover { 
+  border-color: var(--ng-accent); 
+  background: var(--ng-hover-bg);
+}
+.kpi-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+}
+.kpi-card.accent-cyan::before  { background: var(--ng-accent); }
+.kpi-card.accent-red::before   { background: var(--ng-red); }
+.kpi-card.accent-green::before { background: var(--ng-green); }
+.kpi-card.accent-amber::before { background: var(--ng-amber); }
+
+.kpi-label {
+  font-size: 9px; font-weight: 700;
+  letter-spacing: 1.2px; color: var(--ng-muted);
+  text-transform: uppercase; margin-bottom: 8px;
+}
+.kpi-value {
+  font-size: 26px; font-weight: 800;
+  line-height: 1; margin-bottom: 5px;
+  font-family: 'JetBrains Mono', monospace;
+}
+.kpi-card.accent-cyan  .kpi-value { color: var(--ng-accent); }
+.kpi-card.accent-red   .kpi-value { color: var(--ng-red); }
+.kpi-card.accent-green .kpi-value { color: var(--ng-green); }
+.kpi-card.accent-amber .kpi-value { color: var(--ng-amber); }
+.kpi-sub { font-size: 10px; color: var(--ng-muted); }
+
+/* ── Ticker ── */
+.ng-ticker {
+  padding: 7px 24px;
+  background: var(--ng-card);
+  border-bottom: 1px solid var(--ng-border);
+  display: flex; align-items: center; gap: 16px;
+  overflow: hidden;
+}
+.ng-ticker-label {
+  font-size: 9px; font-weight: 700;
+  letter-spacing: 1.5px; color: var(--ng-muted);
+  white-space: nowrap; text-transform: uppercase;
+}
+.ng-ticker-wrap { overflow: hidden; flex: 1; }
+.ng-ticker-inner {
+  display: flex; gap: 36px;
+  animation: ng-ticker-scroll 22s linear infinite;
+  white-space: nowrap;
+}
+@keyframes ng-ticker-scroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.tick-item {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 10px; font-family: 'JetBrains Mono', monospace;
+}
+.tick-fraud { color: var(--ng-red); }
+.tick-ok    { color: var(--ng-green); }
+.tick-amt   { color: var(--ng-muted); }
+
+/* ── Dashboard Card ── */
+.ng-card {
+  background: var(--ng-card);
+  border: 1px solid var(--ng-border);
+  border-radius: 10px;
+  padding: 18px;
+}
+.ng-card-header {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.ng-card-title {
+  font-size: 12px; font-weight: 700;
+  letter-spacing: 0.3px; font-family: 'Syne', sans-serif;
+}
+.ng-badge {
+  font-size: 9px; padding: 2px 7px;
+  border-radius: 4px; font-family: 'JetBrains Mono', monospace;
+}
+.ng-badge-live {
+  background: rgba(0,229,255,.08); color: var(--ng-accent);
+  border: 1px solid rgba(0,229,255,.15);
+}
+.ng-badge-info {
+  background: var(--ng-dim); color: var(--ng-text);
+  border: 1px solid var(--ng-border);
+  opacity: 0.8;
+}
+
+/* ── Feed ── */
+.ng-feed-card {
+  background: var(--ng-card);
+  border: 1px solid var(--ng-border);
+  border-radius: 10px; padding: 18px;
+  display: flex; flex-direction: column;
+  max-height: 360px;
+}
+.ng-feed-list {
+  overflow-y: auto; flex: 1;
+  display: flex; flex-direction: column; gap: 6px;
+  margin-top: 4px; padding-right: 2px;
+}
+.ng-feed-item {
+  display: flex; align-items: center;
+  gap: 9px; padding: 9px 10px;
+  border-radius: 6px; border: 1px solid var(--ng-border);
+  font-size: 11px; animation: ng-fadeIn 0.4s ease;
+  transition: background 0.2s;
+}
+.ng-feed-item:hover { background: var(--ng-hover-bg); }
+@keyframes ng-fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.ng-feed-item.fraud {
+  border-color: rgba(255,59,92,.2);
+  background: rgba(255,59,92,.03);
+}
+.ng-feed-item.legit {
+  border-color: rgba(0,200,122,.1);
+  background: rgba(0,200,122,.02);
+}
+.ng-feed-icon {
+  width: 24px; height: 24px; border-radius: 5px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; flex-shrink: 0;
+}
+.ng-feed-icon.f { background: rgba(255,59,92,.15); color: var(--ng-red); }
+.ng-feed-icon.l { background: rgba(0,200,122,.12); color: var(--ng-green); }
+.ng-feed-id { font-family: 'JetBrains Mono', monospace; color: var(--ng-muted); font-size: 9px; }
+.ng-feed-amt { font-weight: 700; font-size: 12px; }
+.ng-feed-item.fraud .ng-feed-amt { color: var(--ng-red); }
+.ng-feed-item.legit .ng-feed-amt { color: var(--ng-text); }
+.ng-feed-prob {
+  font-family: 'JetBrains Mono', monospace; font-size: 9px;
+  padding: 2px 5px; border-radius: 3px; white-space: nowrap;
+}
+.ng-feed-item.fraud .ng-feed-prob { color: var(--ng-red); background: rgba(255,59,92,.1); }
+.ng-feed-item.legit .ng-feed-prob { color: var(--ng-green); background: rgba(0,200,122,.1); }
+
+/* ── Table ── */
+.ng-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+.ng-table thead th {
+  text-align: left; padding: 7px 9px;
+  font-size: 9px; font-weight: 700;
+  letter-spacing: 1px; color: var(--ng-muted);
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--ng-border);
+}
+.ng-table tbody tr {
+  border-bottom: 1px solid var(--ng-border);
+  transition: 0.15s;
+}
+.ng-table tbody tr:hover { background: var(--ng-hover-bg); }
+.ng-table tbody td {
+  padding: 8px 9px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; color: var(--ng-text);
+}
+.risk-pill {
+  display: inline-block; padding: 2px 7px;
+  border-radius: 3px; font-size: 9px;
+  font-weight: 700; font-family: 'Syne', sans-serif;
+}
+.risk-high { background: rgba(255,59,92,.12); color: var(--ng-red); border: 1px solid rgba(255,59,92,.2); }
+.risk-med  { background: rgba(255,184,48,.08); color: var(--ng-amber); border: 1px solid rgba(255,184,48,.18); }
+.risk-low  { background: rgba(0,200,122,.08); color: var(--ng-green); border: 1px solid rgba(0,200,122,.18); }
+
+/* ── Gauge / Model Stats ── */
+.ng-stat-box {
+  flex: 1; background: var(--ng-surface);
+  border: 1px solid var(--ng-border);
+  border-radius: 6px; padding: 8px; text-align: center;
+  transition: 0.2s;
+}
+.ng-stat-box:hover {
+  background: var(--ng-hover-bg);
+  border-color: var(--ng-accent);
+}
+.ng-stat-val {
+  font-size: 14px; font-weight: 800;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--ng-accent);
+}
+.ng-stat-lbl {
+  font-size: 8px; color: var(--ng-muted);
+  text-transform: uppercase; letter-spacing: 0.8px; margin-top: 2px;
+}
+
+/* ── Donut center ── */
+.ng-donut-center {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center; pointer-events: none;
+}
+.ng-donut-pct {
+  font-size: 22px; font-weight: 800;
+  color: var(--ng-red); font-family: 'JetBrains Mono', monospace;
+}
+.ng-donut-lbl {
+  font-size: 9px; color: var(--ng-muted);
+  font-weight: 700; letter-spacing: 0.5px;
+}
+
+/* ── Mode Toggle ── */
+.ng-mode-toggle {
+  display: flex; background: var(--ng-card);
+  border: 1px solid var(--ng-border);
+  border-radius: 6px; padding: 2px; gap: 2px;
+}
+.ng-mode-btn {
+  padding: 5px 12px; border-radius: 4px;
+  font-size: 11px; font-weight: 600; cursor: pointer;
+  border: none; background: transparent;
+  color: var(--ng-muted); font-family: 'Syne', sans-serif;
+  transition: 0.15s;
+}
+.ng-mode-btn.active {
+  background: var(--ng-surface); color: var(--ng-text);
+  border: 1px solid var(--ng-border);
+}
+
+/* ── Status Badge ── */
+.ng-status-badge {
+  display: flex; align-items: center; gap: 5px;
+  padding: 5px 10px;
+  background: rgba(0,200,122,.08);
+  border: 1px solid rgba(0,200,122,.2);
+  border-radius: 20px; font-size: 10px;
+  font-weight: 600; color: var(--ng-green);
+}
+.ng-status-dot {
+  width: 5px; height: 5px;
+  background: var(--ng-green); border-radius: 50%;
+  animation: ng-pulse 2s infinite;
+}
+@keyframes ng-pulse {
+  0%,100% { opacity: 1; transform: scale(1); }
+  50%     { opacity: 0.5; transform: scale(1.4); }
+}
+
+/* ── Footer ── */
+.ng-footer {
+  padding: 10px 24px;
+  border-top: 1px solid var(--ng-border);
+  display: flex; align-items: center;
+  justify-content: space-between;
+  background: var(--ng-surface);
+}
+.ng-footer-left {
+  font-size: 9px; color: var(--ng-muted);
+  font-family: 'JetBrains Mono', monospace;
+}
+.ng-footer-stat {
+  font-size: 9px; color: var(--ng-muted);
+  font-family: 'JetBrains Mono', monospace;
+}
+.ng-footer-stat span { color: var(--ng-accent); }
+
+/* ── Metric Row (Research mode) ── */
+.ng-metric-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 0;
+  border-bottom: 1px solid rgba(30,34,48,.6);
+}
+.ng-metric-row:last-child { border: none; }
+.ng-metric-label { font-size: 11px; color: var(--ng-muted); width: 140px; flex-shrink: 0; }
+.ng-metric-bar-wrap { flex: 1; background: var(--ng-dim); border-radius: 3px; height: 3px; }
+.ng-metric-bar { height: 3px; border-radius: 3px; background: var(--ng-accent); }
+.ng-metric-val {
+  font-size: 12px; font-weight: 700; color: var(--ng-text);
+  font-family: 'JetBrains Mono', monospace; width: 55px; text-align: right;
+}
+
+/* ── Scan button ── */
+.ng-scan-btn {
+  display: block; width: 100%;
+  margin-top: 14px; padding: 12px;
+  background: var(--ng-accent);
+  border-radius: 8px; text-align: center;
+  color: white; font-weight: 700;
+  text-decoration: none; font-size: 13px;
+  transition: 0.2s;
+}
+.ng-scan-btn:hover { 
+  background: var(--ng-accent);
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 229, 255, 0.2);
+}
