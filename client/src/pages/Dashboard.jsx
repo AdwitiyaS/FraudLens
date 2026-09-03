@@ -204,11 +204,11 @@ const Dashboard = () => {
                   <div className="ng-card-title">Model metrics</div>
                 </div>
                 {[
-                  { label: 'ROC-AUC Score', val: '95.29%', pct: 95.29 },
-                  { label: 'Accuracy', val: '99.96%', pct: 99.96 },
-                  { label: 'Precision', val: '94.05%', pct: 94.05 },
-                  { label: 'Recall', val: '80.61%', pct: 80.61 },
-                  { label: 'F1 Score', val: '86.81%', pct: 86.81 },
+                  { label: 'ROC-AUC Score', val: `${(stats?.modelMetrics?.roc_auc * 100 || 0).toFixed(2)}%`, pct: (stats?.modelMetrics?.roc_auc * 100 || 0) },
+                  { label: 'Accuracy', val: `${(stats?.modelMetrics?.accuracy * 100 || 0).toFixed(2)}%`, pct: (stats?.modelMetrics?.accuracy * 100 || 0) },
+                  { label: 'Precision', val: `${(stats?.modelMetrics?.precision * 100 || 0).toFixed(2)}%`, pct: (stats?.modelMetrics?.precision * 100 || 0) },
+                  { label: 'Recall', val: `${(stats?.modelMetrics?.recall * 100 || 0).toFixed(2)}%`, pct: (stats?.modelMetrics?.recall * 100 || 0) },
+                  { label: 'F1 Score', val: `${(stats?.modelMetrics?.f1 * 100 || 0).toFixed(2)}%`, pct: (stats?.modelMetrics?.f1 * 100 || 0) },
                 ].map(m => (
                   <div key={m.label} className="ng-metric-row">
                     <span className="ng-metric-label">{m.label}</span>
@@ -233,7 +233,7 @@ const Dashboard = () => {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   {[
                     { title: 'Engine Alpha: RF + Isolation Forest', desc: '100 estimators · threshold=0.35 · 202 features (<200k rows)' },
-                    { title: 'Engine Beta: XGBoost + One-Class SVM', desc: 'gradient boosting · threshold=0.9996 · Top 80 features (>200k rows)' },
+                    { title: 'Engine Beta: XGBoost + One-Class SVM', desc: 'gradient boosting ·calibrated threshold · Top 80 features (>200k rows)' },
                     { title: 'SHAP TreeExplainer', desc: 'Dynamic per-transaction feature attribution' },
                   ].map(a => (
                     <div key={a.title} style={{

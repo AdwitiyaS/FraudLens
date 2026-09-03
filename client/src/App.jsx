@@ -13,14 +13,7 @@ import Signup from './pages/Signup';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './hooks/useAuth';
 import AuditTrail from './pages/AuditTrail';
-const PagePlaceholder = ({ title }) => (
-  <div className="glass-panel p-8 h-[60vh] flex flex-col items-center justify-center">
-    <h2 className="text-2xl font-semibold mb-4">{title}</h2>
-    <p className="text-[var(--ng-muted)] text-center max-w-md">
-      This route has been scaffolded successfully. The page logic will be implemented in future steps.
-    </p>
-  </div>
-);
+
 
 function App() {
   const location = useLocation();
@@ -39,9 +32,7 @@ function App() {
           </Routes>
         ) : (
           <main className="ml-0 md:ml-64 pt-14 md:pt-0 p-6 md:p-8 transition-all">
-            <header className="mb-8 hidden md:block">
-              <h2 className="text-sm uppercase tracking-widest text-[var(--ng-muted)] font-bold">Workspace</h2>
-            </header>
+            
 
             <Routes>
               <Route path="/" element={<Navigate to="/dashboard" replace />} />

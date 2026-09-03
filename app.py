@@ -3,6 +3,8 @@ from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from pymongo import MongoClient
 from dotenv import load_dotenv
 import joblib
@@ -13,12 +15,14 @@ import pandas as pd
 from datetime import datetime, timezone
 from bson import ObjectId
 
+
 load_dotenv()
 
 app = Flask(__name__)
 app.config["JWT_SECRET"] = os.getenv("JWT_SECRET", "change-this-in-render-env-vars")
 JWT_EXP_HOURS = 24
-CORS(app)
+CORS(app, origins=["https://fraudlens-app.onrender.com"])
+limiter = Limiter(get_remote_address, app=app, default_limits=["200 per hour"])
 
 # ── Models ───────────────────────────────────────────────────────────────────
 # Structure 1: Random Forest + Isolation Forest
@@ -217,41 +221,59 @@ def login():
     })
 
 @app.route("/predict", methods=["POST"])
-@token_required  
+@token_required
+@limiter.limit("30 per minute")
 def predict():
     data = request.json
-    user_id = request.user_id 
-    
-    # Determine structure based on current user data volume
+    user_id = request.user_id
+
     col = db["user_transactions"]
     count = col.count_documents({"userId": user_id})
     structure = get_analysis_structure(count)
-    
-    # Convert input dict to DataFrame for preprocessing
-    # Normalize keys
+
     input_data = {
         "TransactionDT": float(data.get("time", 0)),
         "TransactionAmt": float(data.get("amount", 0)),
         "card1": float(data.get("card1", 0))
     }
     df = pd.DataFrame([input_data])
-    
-    # Unified Preprocessing
-    X_raw, X_scaled, X_top = preprocess_for_model(df)
-    
-    if structure == "RF_IF":
-        proba = rf_model.predict_proba(X_raw)[0][1]
-        is_fraud = int(proba >= rf_threshold)
-        iso_score = iso_model.decision_function(X_raw)[0]
-        is_anomaly = int(iso_model.predict(X_raw)[0] == -1)
-        model_name = "Random Forest + Isolation Forest"
-    else:
-        # XGBoost path
-        proba = xgb_model.predict_proba(X_top)[0][1]
-        is_fraud = int(proba >= xgb_threshold)
-        iso_score = ocsvm_model.decision_function(X_scaled)[0]
-        is_anomaly = int(ocsvm_model.predict(X_scaled)[0] == -1)
-        model_name = "XGBoost + One-Class SVM"
+
+    try:
+        X_raw, X_scaled, X_top = preprocess_for_model(df)
+
+        if structure == "RF_IF":
+            proba = rf_model.predict_proba(X_raw)[0][1]
+            is_fraud = int(proba >= rf_threshold)
+            iso_score = iso_model.decision_function(X_raw)[0]
+            is_anomaly = int(iso_model.predict(X_raw)[0] == -1)
+            model_name = "Random Forest + Isolation Forest"
+        else:
+            proba = xgb_model.predict_proba(X_top)[0][1]
+            is_fraud = int(proba >= xgb_threshold)
+            iso_score = ocsvm_model.decision_function(X_scaled)[0]
+            is_anomaly = int(ocsvm_model.predict(X_scaled)[0] == -1)
+            model_name = "XGBoost + One-Class SVM"
+
+    except Exception as e:
+        # Graceful degradation: model inference failed, don't crash —
+        # route to human review instead of silently approving or 500-ing
+        action = "HOLD_FOR_REVIEW"
+        reason = f"Model inference failed ({type(e).__name__}); routed to manual review as a safety fallback rather than auto-approving or erroring out."
+        decision_id = log_decision(
+            user_id, input_data, 0.0, 0, 0,
+            action, reason, "FALLBACK — inference error"
+        )
+        return jsonify({
+            "fraud_probability": None,
+            "is_fraud": None,
+            "is_anomaly": None,
+            "iso_score": None,
+            "label": "UNKNOWN",
+            "engine": "fallback",
+            "action": action,
+            "reason": reason,
+            "decision_id": decision_id
+        }), 200  # 200, not 500 — the system degraded gracefully, it didn't crash
 
     doc = {
         "timestamp": datetime.now(timezone.utc),
@@ -266,7 +288,7 @@ def predict():
         "userId": user_id
     }
     predictions_col.insert_one(doc)
-     # ── Agentic decision layer ──
+
     action, reason = decide_action(proba, is_anomaly)
     decision_id = log_decision(
         user_id, input_data, proba, is_fraud, is_anomaly,
@@ -820,4 +842,4 @@ def upload_dataset():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5001)
+    app.run(debug=False, port=5001)

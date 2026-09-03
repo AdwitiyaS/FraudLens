@@ -78,7 +78,7 @@ const Login = () => {
           </h1>
 
           <p className="animate-[fadeUp_0.7s_0.45s_ease_forwards] opacity-0 text-slate-400 text-lg leading-relaxed max-w-md" style={{ animationFillMode: 'forwards' }}>
-            Advanced fraud detection utilizing <span className="text-white">Isolation Forests</span> and <span className="text-white">SHAP</span> to analyze 284k+ transactions with 99.9% precision.
+            Advanced fraud detection utilizing <span className="text-white">Random Forest</span>, <span className="text-white">Isolation Forest</span> and <span className="text-white">SHAP</span> — trained on 400K+ IEEE-CIS transactions with 94% precision.
           </p>
 
           <div className="animate-[fadeUp_0.7s_0.6s_ease_forwards] opacity-0 flex gap-12 pt-8" style={{ animationFillMode: 'forwards' }}>
@@ -102,10 +102,7 @@ const Login = () => {
       </div>
 
       <div className="w-full lg:w-[45%] relative border-l border-white/5 overflow-hidden">
-        <div className="absolute inset-0 z-0">
-          <spline-viewer url="https://prod.spline.design/h9Aq2IwvqBgXbswQ/scene.splinecode" style={{ width: '100%', height: '100%' }}></spline-viewer>
-        </div>
-        <div className="absolute inset-0 z-10 bg-[#020617]/60"></div>
+        <div className="absolute inset-0 z-0 bg-gradient-to-br from-slate-900 via-[#020617] to-slate-950"></div>
 
         <div className="absolute inset-0 z-20 flex items-center justify-center px-10">
           <div className="w-full max-w-sm">
