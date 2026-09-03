@@ -168,7 +168,7 @@ def token_required(f):
 
 @app.route("/")
 def home():
-    return jsonify({"status": "Fraud Detection API running", "port": 5001})
+    return jsonify({"status": "Fraud Detection API running", "port": 5001, "version": "decision-engine-v1"})
 
 #-------------register/login routes-------------
 @app.route("/auth/register", methods=["POST"])
