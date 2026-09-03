@@ -101,6 +101,20 @@ const CheckTransaction = () => {
 
                 <RiskGauge probability={result.fraudProbability} />
               </div>
+              {/* ── NEW: Agentic Decision Card ── */}
+              {result.action && (
+                <div className="ng-card" style={{ padding: 20 }}>
+                  <div style={{ fontSize: 9, fontWeight: 700, color: 'var(--ng-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>
+                    Agentic Decision
+                  </div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: result.action === 'AUTO_BLOCK' ? '#ff4d5e' : result.action === 'AUTO_APPROVE' ? '#00c87a' : '#f5a623', marginBottom: 6 }}>
+                    {result.action.replace(/_/g, ' ')}
+                  </div>
+                  <div style={{ fontSize: 11, color: 'var(--ng-muted)', lineHeight: 1.5 }}>
+                    {result.reason}
+                  </div>
+                </div>
+              )}
 
               {/* Explainability Section */}
               <div className="ng-card">

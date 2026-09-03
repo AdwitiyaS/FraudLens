@@ -27,7 +27,6 @@ export const normalizeTransaction = (data) => {
 };
 
 /**
- * Normalizes a paginated transactions payload.
  */
 export const normalizePaginatedTransactions = (payload) => {
   if (!payload) return { transactions: [], total: 0, page: 1, totalPages: 1 };
@@ -139,5 +138,8 @@ export const normalizePrediction = (payload) => {
       feature: sv.feature,
       shapValue: parseNum(sv.shap_value || sv.shapValue),
     })),
+    action: payload.action || null,
+    reason: payload.reason || null,
+    decisionId: payload.decision_id || null,
   };
 };

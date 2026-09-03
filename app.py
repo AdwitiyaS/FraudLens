@@ -562,11 +562,21 @@ def shap_explain():
     proba    = rf_model.predict_proba([features])[0][1]
     is_fraud = int(proba >= rf_threshold)
 
+    # ── Agentic decision layer ──
+    action, reason = decide_action(proba, is_fraud)  # note: no is_anomaly available here, using is_fraud as proxy
+    decision_id = log_decision(
+        request.user_id, input_data, proba, is_fraud, is_fraud,
+        action, reason, "Random Forest (SHAP)"
+    )
+
     return jsonify({
         "shapValues":       result,
         "fraudProbability": round(float(proba), 4),
         "prediction":       "FRAUD" if is_fraud else "LEGITIMATE",
-        "baseValue": round(float(np.ravel(base)[0]), 4)
+        "baseValue": round(float(np.ravel(base)[0]), 4),
+        "action": action,
+        "reason": reason,
+        "decision_id": decision_id
     })
 
 
