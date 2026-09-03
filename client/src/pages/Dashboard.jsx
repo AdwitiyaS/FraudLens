@@ -186,7 +186,7 @@ const Dashboard = () => {
                 <div className="ng-card-title">Intelligence Summary</div>
               </div>
               <div style={{ fontSize: 13, color: 'var(--ng-muted)', lineHeight: 1.8 }}>
-                NeuralGuard is running at <strong style={{ color: '#00c87a' }}>99.96% accuracy</strong>.
+                FraudLens is running at <strong style={{ color: '#00c87a' }}>99.96% accuracy</strong>.
                 Out of <strong style={{ color: '#00e5ff' }}>{total.toLocaleString()}</strong> transactions analysed,
                 <strong style={{ color: '#ff3b5c' }}> {fraudCount} fraud cases</strong> were detected ({risk}% risk rate).
                 <br /><br />

@@ -12,7 +12,7 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './hooks/useAuth';
-
+import AuditTrail from './pages/AuditTrail';
 const PagePlaceholder = ({ title }) => (
   <div className="glass-panel p-8 h-[60vh] flex flex-col items-center justify-center">
     <h2 className="text-2xl font-semibold mb-4">{title}</h2>
@@ -50,6 +50,7 @@ function App() {
               <Route path="/transactions" element={<ProtectedRoute><TransactionHistory /></ProtectedRoute>} />
               <Route path="/check" element={<ProtectedRoute><CheckTransaction /></ProtectedRoute>} />
               <Route path="/cases" element={<ProtectedRoute><CaseReview /></ProtectedRoute>} />
+              <Route path="/audit-trail" element={<ProtectedRoute><AuditTrail /></ProtectedRoute>} />
               <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
               <Route path="/model-stats" element={<ProtectedRoute><ModelStats /></ProtectedRoute>} />
               <Route path="/upload" element={<ProtectedRoute><UploadDataset /></ProtectedRoute>} />

@@ -48,7 +48,7 @@ const Signup = () => {
           <div className="w-10 h-10 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-cyan-500/30">
             <ShieldCheck className="text-white w-5 h-5" />
           </div>
-          <span className="text-lg font-bold tracking-tight text-white uppercase tracking-widest">NeuralGuard</span>
+          <span className="text-lg font-bold tracking-tight text-white uppercase tracking-widest">FraudLens</span>
         </div>
 
         <div className="z-20 space-y-6 flex flex-col justify-center flex-1 pr-20">

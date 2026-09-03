@@ -78,6 +78,11 @@ export const fetchCases = async () => {
   return normalizeCases(data);
 };
 
+export const fetchAuditTrail = async () => {
+  const { data } = await apiClient.get('/api/audit-trail');
+  return data; // { logs: [...], summary: {...} } — already clean from backend, no normalization needed
+};
+
 export const submitCaseReview = async (caseId, reviewPayload) => {
   const { data } = await apiClient.post(`/api/cases/${caseId}/review`, reviewPayload);
   return data;

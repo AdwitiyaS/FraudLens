@@ -13,6 +13,7 @@ import {
   ExternalLink,
   UploadCloud,
   LogOut,
+  ClipboardList,
 } from 'lucide-react';
 import BrandMark from './BrandMark';
 import ThemeToggle from './ThemeToggle';
@@ -25,6 +26,7 @@ const NAV_LINKS = [
   { to: '/transactions',icon: List,            label: 'Transactions' },
   { to: '/check',       icon: FileSearch,      label: 'Manual Check' },
   { to: '/cases',       icon: ShieldCheck,     label: 'Case Review' },
+  { to: '/audit-trail', icon: ClipboardList,   label: 'Audit Trail' },
   { to: '/analytics',   icon: Activity,        label: 'Analytics' },
   { to: '/model-stats', icon: BarChart2,       label: 'Model Stats' },
   { to: '/upload',      icon: UploadCloud,     label: 'Upload Data' },
@@ -83,7 +85,7 @@ const SidebarContent = ({ onNavigate }) => {
 
       {/* Back to Classic Dashboard */}
       <a
-        href="http://localhost:5000/dashboard"
+        
         aria-label="Back to Classic Dashboard"
         className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-[var(--ng-muted)] hover:text-[var(--ng-text)] hover:bg-[var(--ng-border)] transition-colors text-xs font-medium focus-visible:ring-2 focus-visible:ring-slate-500 outline-none"
       >
@@ -124,7 +126,7 @@ const Navbar = () => {
             <ShieldCheck size={14} className="text-[var(--ng-text)]" aria-hidden="true" />
           </div>
           <span className="text-sm font-extrabold tracking-widest uppercase text-[var(--ng-text)]">
-            NeuralGuard
+            FraudLens
           </span>
         </div>
         <button

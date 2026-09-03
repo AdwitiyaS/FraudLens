@@ -8,10 +8,10 @@ const BrandMark = () => (
     </div>
     <div>
       <h1 className="text-base font-extrabold tracking-widest uppercase text-[var(--ng-text)] leading-none">
-        NeuralGuard
+        FraudLens
       </h1>
       <span className="text-[9px] uppercase tracking-[0.25em] text-[var(--ng-accent)] font-semibold opacity-80">
-        AI Fraud Intel
+        AI Fraud Intelligence
       </span>
     </div>
   </div>
