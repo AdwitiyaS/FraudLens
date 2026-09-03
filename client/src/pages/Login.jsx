@@ -153,11 +153,7 @@ const Login = () => {
               </form>
 
               <div className="mt-8 pt-8 border-t border-slate-800/50 space-y-4">
-                <a href="/api/auth/google"
-                   className="flex items-center justify-center gap-3 bg-white/5 border border-white/5 py-3.5 rounded-2xl hover:bg-white/10 transition-all text-xs font-bold text-slate-400 uppercase tracking-tighter">
-                  <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-4 h-4" alt="Google" />
-                  Google SSO
-                </a>
+                
                 
                 <div className="text-center pt-2">
                   <p className="text-xs text-slate-500">

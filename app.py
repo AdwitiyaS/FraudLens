@@ -312,6 +312,59 @@ def audit_trail():
 
     return jsonify({"logs": logs, "summary": summary})
 
+# ════════════════════════════════════════════════════════════════════════════
+#  COST-IMPACT CALCULATOR
+# ════════════════════════════════════════════════════════════════════════════
+
+FALSE_POSITIVE_UNIT_COST = 500  # ₹ assumed cost per wrongly-flagged legit transaction
+                                  # (support time + lost goodwill + cart abandonment)
+                                  # stated explicitly in docs as an assumption, not measured
+
+@app.route("/api/cost-impact")
+@token_required
+def cost_impact():
+    col, base_filter = get_user_data_source()
+
+    # Real average transaction amount from actual data
+    avg_pipeline = ([{"$match": base_filter}] if base_filter else []) + [
+        {"$group": {"_id": None, "avgAmount": {"$avg": "$Amount"}, "count": {"$sum": 1}}}
+    ]
+    avg_result = list(col.aggregate(avg_pipeline))
+    avg_transaction_value = round(avg_result[0]["avgAmount"], 2) if avg_result and avg_result[0].get("avgAmount") else 0
+
+    # True frauds caught (correctly flagged)
+    frauds_caught = col.count_documents({**base_filter, "is_fraud": 1})
+
+    # Decisions from the agentic layer for this user
+    auto_blocked = decisions_col.count_documents({"userId": request.user_id, "action": "AUTO_BLOCK"})
+    held_for_review = decisions_col.count_documents({"userId": request.user_id, "action": "HOLD_FOR_REVIEW"})
+
+    # Estimated ₹ saved: frauds caught × real average transaction value
+    money_saved = round(frauds_caught * avg_transaction_value, 2)
+
+    # Estimated false-positive cost: assume a % of AUTO_BLOCK + HOLD actions turn out legit
+    # Using the model's own measured false-positive rate from held-out metrics as the estimate
+    model_data = get_model_stats_data(request.user_id)
+    precision = model_data["metrics"]["precision"]
+    estimated_fp_rate = round(1 - precision, 4)  # e.g. precision 0.94 → ~6% of flags are false positives
+    estimated_false_positives = round((auto_blocked + held_for_review) * estimated_fp_rate)
+    false_positive_cost = round(estimated_false_positives * FALSE_POSITIVE_UNIT_COST, 2)
+
+    net_impact = round(money_saved - false_positive_cost, 2)
+
+    return jsonify({
+        "avgTransactionValue": avg_transaction_value,
+        "fraudsCaught": frauds_caught,
+        "moneySaved": money_saved,
+        "autoBlocked": auto_blocked,
+        "heldForReview": held_for_review,
+        "estimatedFalsePositives": estimated_false_positives,
+        "falsePositiveCost": false_positive_cost,
+        "falsePositiveUnitCostAssumption": FALSE_POSITIVE_UNIT_COST,
+        "netImpact": net_impact,
+        "modelPrecision": precision,
+        "note": "moneySaved uses real average transaction value from data. falsePositiveCost uses the model's measured precision (from held-out test metrics) applied to live decision counts, at an assumed ₹500/flag friction cost — stated explicitly, not measured."
+    })
 # FIX 1: /history — include fraud transactions + proper fraud_probability
 @app.route("/history")
 @token_required

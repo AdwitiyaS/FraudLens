@@ -10,7 +10,6 @@ import {
   BarChart2,
   Menu,
   X,
-  ExternalLink,
   UploadCloud,
   LogOut,
   ClipboardList,
@@ -83,15 +82,7 @@ const SidebarContent = ({ onNavigate }) => {
     <div className="px-3 pb-5 space-y-2">
       <div className="mx-2 border-t border-white/[0.06] mb-3" aria-hidden="true" />
 
-      {/* Back to Classic Dashboard */}
-      <a
-        
-        aria-label="Back to Classic Dashboard"
-        className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-[var(--ng-muted)] hover:text-[var(--ng-text)] hover:bg-[var(--ng-border)] transition-colors text-xs font-medium focus-visible:ring-2 focus-visible:ring-slate-500 outline-none"
-      >
-        <ExternalLink size={14} aria-hidden="true" />
-        <span>Classic Dashboard</span>
-      </a>
+      
 
       {/* Theme Toggle */}
       <ThemeToggle />

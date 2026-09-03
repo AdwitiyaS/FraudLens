@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { fetchStats, fetchPaginatedTransactions } from '../api/apiClient';
+import { fetchStats, fetchPaginatedTransactions, fetchCostImpact } from '../api/apiClient';
 import { useFetch } from '../hooks/useFetch';
 
 import KpiCard from '../components/KpiCard';
@@ -28,7 +28,8 @@ const Dashboard = () => {
 
   // Fetch stats
   const { data: stats, refetch: refetchStats } = useFetch(fetchStats, []);
-
+  // Fetch cost impact
+  const { data: costData } = useFetch(fetchCostImpact, []);
   // Fetch recent transactions for the table
   const fetchFrauds = useCallback(() => fetchPaginatedTransactions({ limit: 8, filter: 'fraud' }), []);
   const { data: fraudData } = useFetch(fetchFrauds, []);
@@ -46,7 +47,7 @@ const Dashboard = () => {
   const fraudTxns = fraudData?.transactions || [];
 
   const headerSub = total > 0
-    ? `${total.toLocaleString()} transactions · ${risk}% risk · $${(fraudCount * 4372).toLocaleString()} protected`
+    ? `${total.toLocaleString()} transactions · ${risk}% risk · $${(costData?.moneySaved || 0).toLocaleString()} protected`
     : 'Loading live data...';
 
   return (
@@ -191,8 +192,8 @@ const Dashboard = () => {
                 <strong style={{ color: '#ff3b5c' }}> {fraudCount} fraud cases</strong> were detected ({risk}% risk rate).
                 <br /><br />
                 Estimated losses prevented: <strong style={{ color: '#ffb830' }}>
-                  ${(fraudCount * 4372).toLocaleString()}
-                </strong> (avg fraud transaction = $4,372).
+                  ${(costData?.moneySaved || 0).toLocaleString()}
+                </strong> (based on real average transaction value: ${(costData?.avgTransactionValue || 0).toLocaleString()}).
               </div>
             </div>
 
