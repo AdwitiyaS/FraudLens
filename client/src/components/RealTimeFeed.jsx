@@ -35,10 +35,10 @@ const RealTimeFeed = () => {
           <div style={{ padding: 20, textAlign: 'center', color: 'var(--ng-muted)' }}>No transactions yet</div>
         ) : (
           items.map((item, i) => {
-            const isFraud = item.is_fraud === 1 || item.fraud_probability >= 0.5;
+            const isFraud = item.isFraud || item.fraudProbability >= 0.5;
             const amt = parseFloat(item.amount || 0).toFixed(2);
-            const prob = Math.round((item.fraud_probability || 0) * 100);
-            const txId = item._id ? `TX-${item._id.slice(-4)}` : `TX-${1000 + i}`;
+            const prob = Math.round((item.fraudProbability || 0) * 100);
+            const txId = item.id ? `TX-${item.id.slice(-4)}` : `TX-${1000 + i}`;
             return (
               <div key={item._id || i} className={`ng-feed-item ${isFraud ? 'fraud' : 'legit'}`}>
                 <div className={`ng-feed-icon ${isFraud ? 'f' : 'l'}`}>{isFraud ? '!' : '✓'}</div>

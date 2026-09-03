@@ -16,8 +16,8 @@ const chartData = HOURS.map((h, i) => ({
 const VolumeChart = () => (
   <div className="ng-card" style={{ minHeight: 300 }}>
     <div className="ng-card-header">
-      <div className="ng-card-title">Transaction Volume & Fraud Rate — 24h</div>
-      <span className="ng-badge ng-badge-live">● LIVE</span>
+      <div className="ng-card-title">Transaction Volume & Fraud Rate — Illustrative Pattern</div>
+      <span className="ng-badge ng-badge-live">● SAMPLE</span>
     </div>
     <div style={{ width: '100%', height: 200 }}>
       <ResponsiveContainer>
