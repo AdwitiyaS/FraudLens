@@ -55,6 +55,10 @@ export const fetchStats = async () => {
   const { data } = await apiClient.get('/api/stats');
   return normalizeStats(data);
 };
+export const fetchCostImpact = async () => {
+  const { data } = await apiClient.get('/api/cost-impact');
+  return data;
+};
 
 export const fetchAnalytics = async () => {
   const { data } = await apiClient.get('/api/analytics');
