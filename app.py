@@ -99,6 +99,43 @@ users_col = db["users"]
 predictions_col  = db["predictions"]
 transactions_col = db["transactions"]
 
+decisions_col = db["decisions"]  # new Mongo collection — the audit trail
+
+# ════════════════════════════════════════════════════════════════════════════
+#  AGENTIC DECISION ENGINE
+# ════════════════════════════════════════════════════════════════════════════
+
+DECISION_BANDS = {
+    "auto_approve_below": 0.20,
+    "auto_block_above": 0.85,
+}
+
+def decide_action(fraud_probability, is_anomaly):
+    if fraud_probability >= DECISION_BANDS["auto_block_above"]:
+        return "AUTO_BLOCK", f"Fraud probability {fraud_probability:.1%} exceeds high-confidence threshold ({DECISION_BANDS['auto_block_above']:.0%}). Transaction blocked pending review."
+    elif fraud_probability <= DECISION_BANDS["auto_approve_below"] and not is_anomaly:
+        return "AUTO_APPROVE", f"Fraud probability {fraud_probability:.1%} is below safe threshold ({DECISION_BANDS['auto_approve_below']:.0%}) with no anomaly flag. Approved."
+    else:
+        return "HOLD_FOR_REVIEW", f"Fraud probability {fraud_probability:.1%} falls in the uncertain band, or anomaly detector flagged it. Routed to human case review."
+
+
+def log_decision(user_id, transaction_data, fraud_probability, is_fraud, is_anomaly, action, reason, model_used):
+    doc = {
+        "timestamp": datetime.now(timezone.utc),
+        "userId": user_id,
+        "amount": transaction_data.get("TransactionAmt", 0),
+        "fraud_probability": round(float(fraud_probability), 4),
+        "is_fraud_flag": is_fraud,
+        "is_anomaly": is_anomaly,
+        "action": action,
+        "reason": reason,
+        "model_used": model_used,
+        "reviewed": action == "HOLD_FOR_REVIEW",
+        "review_outcome": None,
+    }
+    result = decisions_col.insert_one(doc)
+    return str(result.inserted_id)
+
 #----auth helper + decorator------
 def generate_token(user_id, email):
     payload = {
@@ -229,14 +266,25 @@ def predict():
         "userId": user_id
     }
     predictions_col.insert_one(doc)
+     # ── Agentic decision layer ──
+    action, reason = decide_action(proba, is_anomaly)
+    decision_id = log_decision(
+        user_id, input_data, proba, is_fraud, is_anomaly,
+        action, reason, model_name
+    )
+
     return jsonify({
         "fraud_probability": doc["fraud_probability"],
         "is_fraud": is_fraud,
         "is_anomaly": is_anomaly,
         "iso_score": doc["iso_score"],
         "label": "FRAUD" if is_fraud else "LEGITIMATE",
-        "engine": model_name
+        "engine": model_name,
+        "action": action,
+        "reason": reason,
+        "decision_id": decision_id
     })
+
 
 
 def get_user_data_source():
@@ -246,6 +294,23 @@ def get_user_data_source():
         if user_col.count_documents({"userId": user_id}, limit=1) > 0:
             return user_col, {"userId": user_id}
     return transactions_col, {}
+
+@app.route("/api/audit-trail")
+@token_required
+def audit_trail():
+    logs = list(decisions_col.find({"userId": request.user_id}).sort("timestamp", -1).limit(100))
+    for l in logs:
+        l["_id"] = str(l["_id"])
+        l["timestamp"] = l["timestamp"].isoformat()
+
+    summary = {
+        "total_decisions": decisions_col.count_documents({"userId": request.user_id}),
+        "auto_approved": decisions_col.count_documents({"userId": request.user_id, "action": "AUTO_APPROVE"}),
+        "held_for_review": decisions_col.count_documents({"userId": request.user_id, "action": "HOLD_FOR_REVIEW"}),
+        "auto_blocked": decisions_col.count_documents({"userId": request.user_id, "action": "AUTO_BLOCK"}),
+    }
+
+    return jsonify({"logs": logs, "summary": summary})
 
 # FIX 1: /history — include fraud transactions + proper fraud_probability
 @app.route("/history")
