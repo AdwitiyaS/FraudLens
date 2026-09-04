@@ -15,7 +15,7 @@ Merchants lose money to fraud in two directions at once. Missed fraud costs them
 - The model's output (fraud probability, anomaly flag) is passed to a decision engine, which returns one of three actions — `AUTO_APPROVE`, `HOLD_FOR_REVIEW`, or `AUTO_BLOCK` — with a plain-English reason.
 - Every decision is logged to MongoDB with a timestamp, building a full audit trail of what the system decided and why.
 - SHAP explainability shows which features drove a given prediction.
-- A cost-impact calculator estimates money saved from caught fraud (real average transaction value) against estimated false-positive cost (real measured precision, applied at an explicitly stated ₹500-per-flag assumption).
+- The cost-impact calculator separates two things explicitly: money saved (frauds caught × real average transaction value) and estimated false-positive cost (real measured precision applied against a stated $500 assumption per false flag — not measured, and the API says so directly).
 
 ## The decision engine
 
