@@ -204,7 +204,7 @@ const Dashboard = () => {
                   <div className="ng-card-title">Model metrics</div>
                 </div>
                 {[
-                  { label: 'ROC-AUC Score', val: `${(stats?.modelMetrics?.roc_auc * 100 || 0).toFixed(2)}%`, pct: (stats?.modelMetrics?.rocAuc * 100 || 0) },
+                  { label: 'ROC-AUC Score', val: `${(stats?.modelMetrics?.rocAuc * 100 || 0).toFixed(2)}%`, pct: (stats?.modelMetrics?.rocAuc * 100 || 0) },
                   { label: 'Accuracy', val: `${(stats?.modelMetrics?.accuracy * 100 || 0).toFixed(2)}%`, pct: (stats?.modelMetrics?.accuracy * 100 || 0) },
                   { label: 'Precision', val: `${(stats?.modelMetrics?.precision * 100 || 0).toFixed(2)}%`, pct: (stats?.modelMetrics?.precision * 100 || 0) },
                   { label: 'Recall', val: `${(stats?.modelMetrics?.recall * 100 || 0).toFixed(2)}%`, pct: (stats?.modelMetrics?.recall * 100 || 0) },
