@@ -37,7 +37,6 @@ IEEE-CIS Fraud Detection data — real, anonymized transaction data (not synthet
 ## Honest metrics
 
 - Accuracy, precision, recall, F1, and ROC-AUC above are from a real, stratified 80/20 train/test split.
-- The cost-impact calculator separates two things explicitly: money saved (frauds caught × real average transaction value) and estimated false-positive cost (real measured precision applied against a stated ₹500 assumption per false flag — not measured, and the API says so directly).
 - We ran a 500-row sample from IEEE-CIS through the live upload pipeline as an end-to-end demonstration. This proves the pipeline works correctly on real transactions; it does not prove held-out generalization, since we can't guarantee zero overlap with the training set. Our real validation numbers are the 80/20 split metrics above.
 
 ## Architecture
