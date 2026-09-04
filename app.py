@@ -338,7 +338,7 @@ def audit_trail():
 #  COST-IMPACT CALCULATOR
 # ════════════════════════════════════════════════════════════════════════════
 
-FALSE_POSITIVE_UNIT_COST = 500  # ₹ assumed cost per wrongly-flagged legit transaction
+FALSE_POSITIVE_UNIT_COST = 500  #  $ assumed cost per wrongly-flagged legit transaction
                                   # (support time + lost goodwill + cart abandonment)
                                   # stated explicitly in docs as an assumption, not measured
 
@@ -361,7 +361,7 @@ def cost_impact():
     auto_blocked = decisions_col.count_documents({"userId": request.user_id, "action": "AUTO_BLOCK"})
     held_for_review = decisions_col.count_documents({"userId": request.user_id, "action": "HOLD_FOR_REVIEW"})
 
-    # Estimated ₹ saved: frauds caught × real average transaction value
+    # Estimated $ saved: frauds caught × real average transaction value
     money_saved = round(frauds_caught * avg_transaction_value, 2)
 
     # Estimated false-positive cost: assume a % of AUTO_BLOCK + HOLD actions turn out legit
@@ -385,7 +385,7 @@ def cost_impact():
         "falsePositiveUnitCostAssumption": FALSE_POSITIVE_UNIT_COST,
         "netImpact": net_impact,
         "modelPrecision": precision,
-        "note": "moneySaved uses real average transaction value from data. falsePositiveCost uses the model's measured precision (from held-out test metrics) applied to live decision counts, at an assumed ₹500/flag friction cost — stated explicitly, not measured."
+        "note": "moneySaved uses real average transaction value from data. falsePositiveCost uses the model's measured precision (from held-out test metrics) applied to live decision counts, at an assumed $500/flag friction cost — stated explicitly, not measured."
     })
 # FIX 1: /history — include fraud transactions + proper fraud_probability
 @app.route("/history")
