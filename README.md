@@ -32,7 +32,7 @@ Two model pairs, selected based on how much data a user has uploaded:
 
 ## Dataset
 
-IEEE-CIS Fraud Detection data — real, anonymized transaction data (not synthetic), sourced from Vesta Corporation via Kaggle. We evaluated PaySim as an alternative and dropped it: its feature schema didn't match what our trained model expects, so we left it out rather than force a comparison that wouldn't mean anything.
+IEEE-CIS Fraud Detection data — real, transaction data (not synthetic), sourced from Vesta Corporation via Kaggle. We evaluated PaySim as an alternative and dropped it: its feature schema didn't match what our trained model expects, so we left it out rather than force a comparison that wouldn't mean anything.
 
 ## Honest metrics
 
